@@ -1,0 +1,93 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+// var app = require('../app'); // this is the original line and it is changed to the following lines
+/**
+ * In the modified version, the app and server are imported separately. The app is accessed from require('../app').app and the server is accessed from require('../app').server.
+ * This change is required because the updated app.js exports both the Express app instance and the HTTP server instance. This allows the WebSocket server to be attached to the HTTP server.
+ */
+
+
+var app = require('../app').app; 
+var server = require('../app').server;
+
+var debug = require('debug')('express1:server');
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+// var server = http.createServer(app); // this is the original line and it is removed in the modified version, because the server is already created and exported in app.js:
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
